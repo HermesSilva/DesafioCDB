@@ -41,6 +41,8 @@ namespace Services.Cache
         private static readonly int _MAIOR_ANO_CDI = DateTime.Now.Year;
         private readonly Dictionary<string, decimal> _CDICache = new Dictionary<string, decimal>();
         private readonly Dictionary<string, decimal> _TBCache = new Dictionary<string, decimal>();
+        private readonly Object _ToCDILock = new Object();
+        private readonly Object _ToTBLock = new Object();
 
         /// <summary>
         /// Informado mês e ano será retornado o valor da Taxa.
@@ -55,9 +57,12 @@ namespace Services.Cache
             if (pAno < _MENOR_ANO_CDI || pAno > _MAIOR_ANO_CDI)
                 throw new MyException(ANO_INVALIDO);
             var key = pMes.ToString("00") + pAno.ToString("0000");
-            if (_CDICache.TryGetValue(key, out var cDI))
-                return cDI;
-            _CDICache[key] = CDI;
+            lock (_ToCDILock)
+            {
+                if (_CDICache.TryGetValue(key, out var cDI))
+                    return cDI;
+                _CDICache[key] = CDI;
+            }
             return CDI;
         }
 
@@ -97,9 +102,12 @@ namespace Services.Cache
             if (pAno < _MENOR_ANO_CDI || pAno > _MAIOR_ANO_CDI)
                 throw new MyException(ANO_INVALIDO);
             var key = pMes.ToString("00") + pAno.ToString("0000");
-            if (_TBCache.TryGetValue(key, out var cTB))
-                return cTB;
-            _TBCache[key] = TB;
+            lock (_ToTBLock)
+            {
+                if (_TBCache.TryGetValue(key, out var cTB))
+                    return cTB;
+                _TBCache[key] = TB;
+            }
             return TB;
         }
     }
