@@ -15,6 +15,8 @@ if errorlevel 1 goto error
 
 goto fim
 :error
+
 @echo HOUVE ERRO, OBSERVE E CORRIJA
+
 pause
 :fim
